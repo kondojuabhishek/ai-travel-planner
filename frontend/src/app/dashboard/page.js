@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getUserTrips, createTrip, deleteTrip, addActivity, removeActivity, regenerateDay } from '@/utils/api';
 import CreateTripForm from '@/components/CreateTripForm';
 import ItineraryView from '@/components/ItineraryView';
+import ExpenseTracker from '@/components/ExpenseTracker';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -203,15 +204,23 @@ export default function Dashboard() {
 
             {/* Main itinerary view */}
             <div className="lg:col-span-3">
-              {selectedTrip && (
-                <ItineraryView
-                  trip={selectedTrip}
-                  onAddActivity={handleAddActivity}
-                  onRemoveActivity={handleRemoveActivity}
-                  onRegenerateDay={handleRegenerateDay}
-                  onDeleteTrip={handleDeleteTrip}
-                />
-              )}
+             {selectedTrip && (
+                <>
+                  <ItineraryView
+                    trip={selectedTrip}
+                    onAddActivity={handleAddActivity}
+                    onRemoveActivity={handleRemoveActivity}
+                    onRegenerateDay={handleRegenerateDay}
+                    onDeleteTrip={handleDeleteTrip}
+                  />
+                  <div className="mt-6">
+                    <ExpenseTracker
+                    trip={selectedTrip}
+                    onTripUpdated={updateTripInState}
+                    />
+                  </div>
+                </>
+            )}
             </div>
           </div>
         )}
