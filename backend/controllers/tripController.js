@@ -165,10 +165,21 @@ exports.regenerateDay = async (req, res) => {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
+    // Find the day FIRST before using it
+    const day = trip.itinerary.find((d) => d.dayNumber === dayNumber);
+    if (!day) {
+      return res.status(404).json({ message: `Day ${dayNumber} not found` });
+    }
+
+    const existingActivities = day.activities.map((a) => a.title).join(', ');
+
     const apiKey = process.env.GROQ_API_KEY;
-    const prompt = `You are a travel planner. Regenerate Day ${dayNumber} of a ${trip.durationDays}-day trip to ${trip.destination}.
+    const prompt = `You are a travel planner updating Day ${dayNumber} of a ${trip.durationDays}-day trip to ${trip.destination}.
 Budget: ${trip.budgetTier}. Interests: ${trip.interests.join(', ')}.
-${instruction ? `Special instruction: ${instruction}` : ''}
+
+Current activities already planned for this day: ${existingActivities}.
+Keep these unless the instruction specifically asks to change them.
+${instruction ? `User instruction: ${instruction}` : 'Improve the day while keeping existing activities.'}
 
 Respond with ONLY valid JSON matching exactly this structure:
 {
@@ -177,7 +188,8 @@ Respond with ONLY valid JSON matching exactly this structure:
   ]
 }
 Rules:
-- Generate 2-4 activities using only these timeOfDay values: "Morning", "Afternoon", "Evening"
+- Include the existing activities plus any additions from the instruction
+- Use only these timeOfDay values: "Morning", "Afternoon", "Evening"
 - Use realistic USD costs for a ${trip.budgetTier} budget traveler in ${trip.destination}
 - Do NOT repeat activities already in other days`;
 
@@ -200,12 +212,6 @@ Rules:
     if (!rawText) throw new Error('No content from AI');
 
     const parsed = JSON.parse(rawText);
-
-    // Replace the specific day's activities
-    const day = trip.itinerary.find((d) => d.dayNumber === dayNumber);
-    if (!day) {
-      return res.status(404).json({ message: `Day ${dayNumber} not found` });
-    }
 
     day.activities = parsed.activities;
     await trip.save();
