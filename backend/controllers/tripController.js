@@ -1,28 +1,37 @@
 const Trip = require('../models/Trip');
+const { generateTripPlan } = require('../services/aiService');
 
-// @desc    Create a new trip (itinerary/budget/hotels filled in later by AI)
+// @desc    Create a trip — generates itinerary/budget/hotels via Gemini, then saves
 // @route   POST /api/trips
 exports.createTrip = async (req, res) => {
   try {
     const { destination, durationDays, budgetTier, interests } = req.body;
 
+    if (!destination || !durationDays || !budgetTier || !interests) {
+      return res.status(400).json({ message: 'Missing required trip fields' });
+    }
+
+    const aiPlan = await generateTripPlan({ destination, durationDays, budgetTier, interests });
+
     const trip = await Trip.create({
-      userId: req.user.id, // comes from the decoded JWT, NEVER from req.body
+      userId: req.user.id,
       destination,
       durationDays,
       budgetTier,
       interests,
-      itinerary: [],
-      estimatedBudget: {},
-      hotels: [],
+      itinerary: aiPlan.itinerary,
+      hotels: aiPlan.hotels,
+      estimatedBudget: aiPlan.estimatedBudget,
     });
 
     res.status(201).json(trip);
   } catch (error) {
     console.error('Create trip error:', error.message);
-    res.status(500).json({ message: 'Server error creating trip' });
+    res.status(500).json({ message: 'Failed to generate trip. Please try again.' });
   }
 };
+
+
 
 // @desc    Get all trips belonging to the logged-in user
 // @route   GET /api/trips
