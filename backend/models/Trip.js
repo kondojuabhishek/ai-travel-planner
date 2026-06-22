@@ -4,6 +4,7 @@ const ActivitySchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   estimatedCostUSD: { type: Number, default: 0 },
+  actualCostUSD: { type: Number, default: null },
   timeOfDay: { type: String, enum: ['Morning', 'Afternoon', 'Evening'] },
 });
 
