@@ -121,7 +121,7 @@ ai-travel-planner/
 
 └── utils/api.js
 
-## Authentication & Authorization
+## Authentication & Authorization 
 
 - Passwords are hashed using `bcryptjs` before storage — plaintext passwords are never saved
 - On login/register, a signed JWT is returned and stored in `localStorage`
