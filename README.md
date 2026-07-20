@@ -1,6 +1,11 @@
 # AI Travel Planner
 
-A full-stack, multi-user AI-powered travel itinerary generator built as a take-home engineering assessment for Trao Technologies.
+A production-deployed, multi-user full-stack web application that generates personalized travel itineraries using LLM integration. Built to demonstrate end-to-end full-stack engineering: authentication, database design, LLM integration, and cloud deployment.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Render-blue)
 
 ## Live Demo
 - **Frontend**: https://ai-travel-planner-three-nu.vercel.app
@@ -61,65 +66,43 @@ npm run dev
 
 Create a `.env.local` file in `frontend/`:
 
+```
 NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
 Frontend runs on `http://localhost:3000`
 
 ## Architecture
 
+```
 ai-travel-planner/
-
 ├── backend/
-
 │   ├── config/db.js          # MongoDB connection
-
-│   ├── middleware/auth.js     # JWT verification middleware
-
+│   ├── middleware/auth.js    # JWT verification middleware
 │   ├── models/
-
 │   │   ├── User.js           # User schema
-
 │   │   └── Trip.js           # Trip + itinerary schema
-
 │   ├── controllers/
-
 │   │   ├── authController.js # Register + login logic
-
 │   │   └── tripController.js # Trip CRUD + AI generation
-
 │   ├── routes/
-
 │   │   ├── authRoutes.js
-
 │   │   └── tripRoutes.js
-
 │   ├── services/
-
 │   │   └── aiService.js      # Groq API integration with exponential backoff
-
 │   └── server.js
-
 └── frontend/
-
-└── src/
-
-├── app/
-
-│   ├── login/
-
-│   ├── register/
-
-│   └── dashboard/
-
-├── components/
-
-│   ├── CreateTripForm.js
-
-│   ├── ItineraryView.js
-
-│   └── ExpenseTracker.js
-
-└── utils/api.js
+    └── src/
+        ├── app/
+        │   ├── login/
+        │   ├── register/
+        │   └── dashboard/
+        ├── components/
+        │   ├── CreateTripForm.js
+        │   ├── ItineraryView.js
+        │   └── ExpenseTracker.js
+        └── utils/api.js
+```
 
 ## Authentication & Authorization 
 
@@ -140,9 +123,9 @@ A targeted prompt sends the existing day's activities alongside an optional user
 
 Both operations use exponential backoff (1s → 2s → 4s → 8s → 16s) to handle transient API rate limits gracefully.
 
-**Provider decision**: The reference guide suggested Gemini. However, Gemini's free tier returned quota errors (limit: 0) due to Google Cloud project provisioning restrictions. Rather than blocking on this, I switched to Groq — a pragmatic engineering decision. The AI service layer is provider-agnostic: the `generateTripPlan` function interface stays identical regardless of which LLM is behind it, making a future swap back to Gemini a one-file change.
+**Initially attempted integration with Gemini API, but the free tier returned persistent quota errors due to Google Cloud project provisioning restrictions. Rather than blocking on infrastructure setup, I switched to Groq — a pragmatic engineering decision. The AI service layer is provider-agnostic: the generateTripPlan function interface stays identical regardless of which LLM is behind it, making a future swap back to Gemini a one-file change.
 
-## Creative Feature: Expense Tracker
+## Expense Tracker
 
 **What it does**: A dedicated section below each trip's itinerary lets users enter actual spending for each AI-suggested activity and compare it against the AI's estimates in real time. Users can also add unplanned expenses not in the itinerary.
 
@@ -163,8 +146,6 @@ Both operations use exponential backoff (1s → 2s → 4s → 8s → 16s) to han
 ## Known Limitations & Future Improvements
 
 - All budget estimates are in USD. Future: real-time currency conversion based on user locale
-- Unplanned expenses in the Expense Tracker default to Day 1. Future: let users assign them to a specific day
 - Regenerate day replaces the full day rather than incrementally modifying it, due to LLM context limitations. Users wanting to add specific activities should use the manual Add Activity input
 - Render free tier cold start delay (~30–60 seconds after inactivity)
 - No email verification on registration
-- JWT stored in localStorage (XSS risk) — httpOnly cookies would be more secure in production
