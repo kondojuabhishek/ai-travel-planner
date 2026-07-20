@@ -11,6 +11,18 @@ A production-deployed, multi-user full-stack web application that generates pers
 - **Frontend**: https://ai-travel-planner-three-nu.vercel.app
 - **Backend**: https://ai-travel-planner-backend-al2x.onrender.com
 
+## Screenshots 
+
+![Register](./screenshots/Register.png)
+
+![Dashboard](./screenshots/Dashboard.png)
+
+![New Trip](./screenshots/New-Trip.png)
+
+![Itinerary View](./screenshots/Itinerary.png)
+
+![Expense Tracker](./screenshots/Expense-Tracker.png)
+
 ## Tech Stack
 
 | Layer | Technology | Reason |
